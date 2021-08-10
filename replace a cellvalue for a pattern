@@ -1,0 +1,14 @@
+
+#replace a cell value for a pattern
+
+library(dplyr)
+
+#load file
+df <- read.csv("Test.csv")
+
+#replace a cell value for a pattern
+
+df1$Region <- ifelse( grepl("City",df1$RegionTyPe),"City",
+              ifelse( grepl("State",df1$RegionTyPe),"State",
+              ifelse( grepl("County",df1$RegionTyPe),"County","Others"
+              )))
