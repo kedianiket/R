@@ -1,0 +1,10 @@
+
+#replace NA with group average
+
+library(dplyr)
+
+#load file
+df <- read.csv("Test.csv")
+
+#Group by SalesRep column and replace NA's in Sales column
+df1 <- df %>% group_by(SalesRep) %>% mutate(abc = ifelse(is.na(Sales), mean(Sales, na.rm = T), Sales))
