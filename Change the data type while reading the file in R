@@ -1,0 +1,1 @@
+df <- read.csv("file.csv", colClasses = c(ColName = "character"))
