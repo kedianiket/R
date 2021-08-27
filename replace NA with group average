@@ -1,5 +1,5 @@
 
-#replace NA with group   average
+#replace NA with group average
 
 library(dplyr)
 
