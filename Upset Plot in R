@@ -1,0 +1,36 @@
+install.packages("UpSetR")
+install.packages("ComplexHeatmap")
+install.packages("colorspace")
+install.packages("writexl")
+install.packages("ggvenn")
+
+library(ggvenn)
+library(UpSetR)
+library(ComplexHeatmap)
+library(ggplot2)
+library(dplyr)
+library(readxl)
+library(writexl)
+library(ggupset)
+
+
+
+df <- read_excel("City.xlsx", sheet = "City")
+
+df <- df %>%
+  group_by(Operator) %>%
+  summarize(City = list(City))
+
+
+lt = list(
+  Bird = df[1,2],
+  Bolt = df[2,2],
+  Dott = df[3,2],
+  Lime = df[4,2],
+  Tier = df[5,2],
+  Voi = df[6,2],
+  Wind = df[7,2])
+
+make_comb_mat(list_to_matrix(lt))
+m3 = make_comb_mat(lt, mode = "union")
+UpSet(m3)
