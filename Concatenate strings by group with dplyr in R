@@ -1,0 +1,10 @@
+library(dplyr)
+
+
+df <- iris %>% select(Species,Sepal.Length) %>%
+  group_by(Species) %>% 
+  mutate(Grp = paste0(Sepal.Length, collapse = ",")) %>% 
+   distinct(Species, Grp, .keep_all = TRUE)
+  
+
+df 
