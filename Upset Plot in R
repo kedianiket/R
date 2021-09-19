@@ -19,7 +19,7 @@ df <- read_excel("City.xlsx", sheet = "City")
 
 df <- df %>%
   group_by(Operator) %>%
-  summarize(City = list(City))
+  summarize(City = list(City)) 
 
 
 lt = list(
