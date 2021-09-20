@@ -6,5 +6,5 @@ df <- iris %>% select(Species,Sepal.Length) %>%
   mutate(Grp = paste0(Sepal.Length, collapse = ",")) %>% 
    distinct(Species, Grp, .keep_all = TRUE)
   
-
+  
 df 
