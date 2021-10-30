@@ -1,0 +1,57 @@
+x <- c(2, 3, NA, 5, NA, 7, 8)
+
+
+########Total
+total <- 0
+
+for (i in x){
+  if (!is.na(i)) {
+  
+  total <- total + i
+
+    }
+  }
+
+total
+
+
+#######length
+
+lnth <- 0
+for (i in x){
+    if (!is.na(i)) {
+    lnth <-lnth + 1
+    
+  }
+  
+}
+
+lnth
+
+#######mean
+
+
+Cmean <- total/lnth
+
+Cmean
+
+
+########variance
+
+
+
+
+varr <- 0
+
+for (i in x){
+  if (!is.na(i)) {
+    
+    varr <- varr + (i-Cmean)^2/(lnth-1)
+   # print(i)
+    print(varr)
+    
+    
+  }
+}
+
+varr
