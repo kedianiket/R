@@ -1,0 +1,22 @@
+
+
+ui <- basicPage(
+  h2("Google Sheet"),
+  DT::dataTableOutput("mytable")
+)
+
+server <- function(input, output) {
+  output$mytable = DT::renderDataTable({
+    
+    library(googlesheets4)
+    nn <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACfjdghdfjhgdfhgdfhgdfkghdfkghdkfhgdkfhgkhkshdfksdax4xCfI_VCRbPVZlF/pub?output=csv")   
+    
+    nn
+  })
+}
+
+
+
+
+
+shinyApp(ui, server)
