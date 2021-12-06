@@ -1,0 +1,11 @@
+par(mar= rep(2,4))
+par(mfrow=c(6,1))
+
+plot(mtcars$mpg,mtcars$cyl)
+plot(mtcars$mpg,mtcars$cyl)
+plot(mtcars$mpg,mtcars$cyl)
+plot(mtcars$mpg,mtcars$cyl)
+plot(mtcars$mpg,mtcars$cyl)
+plot(mtcars$mpg,mtcars$cyl)
+
+
