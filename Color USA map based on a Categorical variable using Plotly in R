@@ -60,5 +60,7 @@ cw_map <- plot_ly(
 
 cw_map
 
+saveWidget(cw_map, 'USA Map.html')
+
 
 
