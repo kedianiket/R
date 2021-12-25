@@ -1,0 +1,64 @@
+#--------------Data
+
+State	Sales
+AL	High
+AK	Medium
+AZ	Medium
+AR	Medium
+CA	Very Low
+CO	Very High
+CT	Low
+DE	Medium
+FL	Very High
+
+
+
+#--------------CODE
+
+#load library
+library(dplyr)
+library(plotly)
+library(htmlwidgets)
+library(RColorBrewer)
+
+#load data
+df <- read.csv("states.csv")
+
+#factoring
+df$Sales = factor(df$Sales)
+df$val = as.numeric(df$Sales)
+nfactor = length(levels(df$Sales))
+colr <- brewer.pal(n = nfactor,name = "Set1")
+levels(df$Sales) <- c("Very Low" , "Low", "Medium", "High", "Very High")
+names(colr) = levels(df$Sales)
+
+
+colrS = function(n){
+  CUTS = seq(0,1,length.out=n+1)
+  rep(CUTS,ifelse(CUTS %in% 0:1,1,2))
+}
+
+colorScale <- data.frame(z=colrS(nfactor),
+                         col=rep(colr,each=2),stringsAsFactors=FALSE)
+
+
+
+#Map
+cw_map <- plot_ly(
+  data = df,
+  type = "choropleth",
+  locations = ~ State,
+  locationmode = "USA-states",
+  z = df$val,
+  colorscale=   colorScale, # or "Greens",
+  colorbar=list(tickvals=1:nfactor, ticktext=names(colr))
+) %>%
+  layout(geo = list(scope = "usa")) %>% 
+  colorbar(title = "Color Scales")
+
+
+
+cw_map
+
+
+
