@@ -1,0 +1,6 @@
+#column average of column 2 and column 3
+colMeans(mtcars[ , c(2, 3)])
+
+
+#row average of column 2 and column 3
+rowMeans(mtcars)
