@@ -44,7 +44,7 @@ colorScale <- data.frame(z=colrS(nfactor),
 
 
 #Map
-cw_map <- plot_ly(
+p <- plot_ly(
   data = df,
   type = "choropleth",
   locations = ~ State,
@@ -58,9 +58,9 @@ cw_map <- plot_ly(
 
 
 
-cw_map
+p
 
-saveWidget(cw_map, 'USA Map.html')
+saveWidget(p, 'USA Map.html')
 
 
 
