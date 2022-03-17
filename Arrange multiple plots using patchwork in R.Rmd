@@ -1,0 +1,99 @@
+---
+title: "Arrange multiple plots using patchwork in R"
+author: "Niket Kedia"
+date: "17/03/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE,warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## loading Libraries
+
+
+```{r,warning=FALSE}
+library(ggplot2)
+library(patchwork)
+
+```
+
+## reading data
+
+
+
+```{r echo = T, message=FALSE}
+df <- read.csv("Pokemon.csv")
+
+```
+
+## Creating plots
+
+
+
+```{r echo = T, message=FALSE}
+#Plot1----HP
+p1 <- ggplot(df, aes(x=HP, fill=Legendary)) +
+geom_density(alpha=0.4) +
+theme(legend.position = "none")
+
+#Plot2----ATTACK
+p2 <- ggplot(df, aes(x=Attack, fill=Legendary)) +
+geom_density(alpha=0.4) +
+theme(legend.position = "none")
+
+#Plot3---Sp..Def
+p3 <- ggplot(df, aes(x=Sp..Def, fill=Legendary)) +
+geom_density(alpha=0.4) +
+theme(legend.position = "none")
+
+#Plot4----Sp..Atk
+p4 <- ggplot(df, aes(x=Sp..Atk, fill=Legendary)) +
+geom_density(alpha=0.4) + 
+theme(legend.position = "none")
+
+#Plot5---Defense
+p5 <- ggplot(df, aes(x=Defense, fill=Legendary)) +
+geom_density(alpha=0.4) + 
+theme(legend.position = "none") 
+
+
+```
+
+
+
+## Example 1
+
+Combining plot using patchwork package
+
+```{r, echo=T}
+ 
+(p1|p2|p3)/(p4|p5)
+
+```
+
+\newpage
+
+## Example 2
+
+
+```{r, echo=T}
+ 
+
+(p1|p2)
+
+```
+
+\newpage
+
+## Example 3
+
+
+```{r, echo=T}
+
+ 
+(p1/p2)
+
+```
