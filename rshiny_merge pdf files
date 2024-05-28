@@ -1,0 +1,104 @@
+# Install the required packages if you haven't already
+# install.packages("shiny")
+# install.packages("shinyFiles")
+# install.packages("qpdf")
+# install.packages("shinyWidgets")
+# install.packages("bslib")
+# install.packages("shinycssloaders")
+
+library(shiny)
+library(shinyFiles)
+library(qpdf)
+library(shinyWidgets)
+library(bslib)
+library(shinycssloaders)
+
+# Define UI for the app
+ui <- fluidPage(
+  theme = bs_theme(version = 4, bootswatch = "flatly"),
+  
+  # Application title
+  titlePanel("Merge PDF Files"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      tags$h4("Select PDF Files to Merge"),
+      shinyFilesButton("pdfs", "Choose PDF Files", "Please select PDF files", multiple = TRUE, class = "btn btn-info"),
+      tags$br(),
+      tags$br(),
+      textOutput("selected_files") %>% withSpinner(color = "#007bff"),
+      tags$br(),
+      actionButton("merge", "Merge PDFs", class = "btn btn-primary"),
+      tags$br(),
+      tags$br(),
+      downloadButton("download", "Download Merged PDF", class = "btn btn-success"),
+      tags$br(),
+      tags$br(),
+      tags$div(
+        tags$h5("Tips:"),
+        tags$ul(
+          tags$li("Select multiple PDF files to merge."),
+          tags$li("Click 'Merge PDFs' to combine the selected files."),
+          tags$li("Download the merged PDF using the 'Download Merged PDF' button.")
+        )
+      )
+    ),
+    
+    mainPanel(
+      tags$h4("Merge Status"),
+      verbatimTextOutput("merge_status") %>% withSpinner(color = "#007bff")
+    )
+  )
+)
+
+# Define server logic required to merge the PDFs
+server <- function(input, output, session) {
+  volumes <- shinyFiles::getVolumes()
+  
+  shinyFiles::shinyFileChoose(input, "pdfs", roots = volumes, session = session, 
+                              filetypes = c("pdf"))
+  
+  selected_files <- reactiveVal(NULL)
+  
+  observe({
+    if (!is.null(input$pdfs)) {
+      files <- shinyFiles::parseFilePaths(volumes, input$pdfs)
+      selected_files(files$datapath)
+    }
+  })
+  
+  output$selected_files <- renderText({
+    files <- selected_files()
+    if (is.null(files)) {
+      return("No files selected.")
+    }
+    paste("Selected files:\n", paste(basename(files), collapse = "\n"))
+  })
+  
+  merged_file <- reactiveVal(NULL)
+  
+  observeEvent(input$merge, {
+    files <- selected_files()
+    if (!is.null(files) && length(files) > 1) {
+      merged_file_path <- tempfile(fileext = ".pdf")
+      qpdf::pdf_combine(input = files, output = merged_file_path)
+      merged_file(merged_file_path)
+      output$merge_status <- renderText("PDFs successfully merged.")
+    } else {
+      output$merge_status <- renderText("Please select at least two PDF files to merge.")
+    }
+  })
+  
+  output$download <- downloadHandler(
+    filename = function() {
+      paste("merged_pdf_", Sys.Date(), ".pdf", sep = "")
+    },
+    content = function(file) {
+      file.copy(merged_file(), file)
+    },
+    contentType = "application/pdf"
+  )
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
