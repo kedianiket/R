@@ -1,0 +1,82 @@
+library(shiny)
+library(pdftools)
+library(qpdf)
+
+# Increase file size limit to 100 MB
+options(shiny.maxRequestSize = 100 * 1024^2)
+
+# Define UI
+ui <- fluidPage(
+  titlePanel("PDF Page Deletion Tool"),
+  sidebarLayout(
+    sidebarPanel(
+      fileInput("file", "Upload PDF", accept = ".pdf"),
+      uiOutput("page_selector"),
+      actionButton("delete_pages", "Delete Pages"),
+      downloadButton("download", "Download Modified PDF")
+    ),
+    mainPanel(
+      textOutput("status")
+    )
+  )
+)
+
+# Define Server
+server <- function(input, output, session) {
+  
+  pdf_pages <- reactiveVal(NULL)
+  temp_file <- tempfile(fileext = ".pdf")
+  
+  # Read PDF and store total pages
+  observeEvent(input$file, {
+    req(input$file)
+    pdf_path <- input$file$datapath
+    
+    # Extract number of pages
+    num_pages <- pdf_info(pdf_path)$pages
+    pdf_pages(seq_len(num_pages)) # Store page numbers
+    
+    # Generate page selector UI
+    output$page_selector <- renderUI({
+      req(pdf_pages())
+      checkboxGroupInput(
+        "pages_to_delete",
+        "Select Pages to Delete:",
+        choices = pdf_pages()
+      )
+    })
+  })
+  
+  # Delete selected pages
+  observeEvent(input$delete_pages, {
+    req(input$file)
+    req(input$pages_to_delete)
+    
+    pdf_path <- input$file$datapath
+    pages_to_keep <- setdiff(pdf_pages(), input$pages_to_delete)
+    
+    if (length(pages_to_keep) > 0) {
+      qpdf::pdf_subset(
+        input = pdf_path,
+        output = temp_file,
+        pages = pages_to_keep
+      )
+      output$status <- renderText("Pages deleted successfully! Download the modified file below.")
+    } else {
+      output$status <- renderText("Cannot delete all pages!")
+    }
+  })
+  
+  # Provide download option for modified PDF
+  output$download <- downloadHandler(
+    filename = function() {
+      paste0(tools::file_path_sans_ext(input$file$name), "_modified.pdf")
+    },
+    content = function(file) {
+      file.copy(temp_file, file)
+    }
+  )
+}
+
+# Run the app
+shinyApp(ui = ui, server = server)
