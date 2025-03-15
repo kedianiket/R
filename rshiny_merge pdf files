@@ -6,12 +6,14 @@
 # install.packages("bslib")
 # install.packages("shinycssloaders")
 
+
+# Load required libraries
 library(shiny)
-library(shinyFiles)
 library(qpdf)
 library(shinyWidgets)
 library(bslib)
 library(shinycssloaders)
+library(dplyr)
 
 # Define UI for the app
 ui <- fluidPage(
@@ -23,8 +25,9 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       tags$h4("Select PDF Files to Merge"),
-      shinyFilesButton("pdfs", "Choose PDF Files", "Please select PDF files", multiple = TRUE, class = "btn btn-info"),
-      tags$br(),
+      fileInput("pdfs", "Choose PDF Files", 
+                multiple = TRUE, accept = c(".pdf"),
+                buttonLabel = "Browse...", placeholder = "No files selected"),
       tags$br(),
       textOutput("selected_files") %>% withSpinner(color = "#007bff"),
       tags$br(),
@@ -35,11 +38,11 @@ ui <- fluidPage(
       tags$br(),
       tags$br(),
       tags$div(
-        tags$h5("Tips:"),
+        tags$h5("Instructions:"),
         tags$ul(
-          tags$li("Select multiple PDF files to merge."),
+          tags$li("Select multiple PDF files from any folder."),
           tags$li("Click 'Merge PDFs' to combine the selected files."),
-          tags$li("Download the merged PDF using the 'Download Merged PDF' button.")
+          tags$li("Download the merged PDF using 'Download Merged PDF'.")
         )
       )
     ),
@@ -53,18 +56,11 @@ ui <- fluidPage(
 
 # Define server logic required to merge the PDFs
 server <- function(input, output, session) {
-  volumes <- shinyFiles::getVolumes()
-  
-  shinyFiles::shinyFileChoose(input, "pdfs", roots = volumes, session = session, 
-                              filetypes = c("pdf"))
-  
   selected_files <- reactiveVal(NULL)
   
   observe({
-    if (!is.null(input$pdfs)) {
-      files <- shinyFiles::parseFilePaths(volumes, input$pdfs)
-      selected_files(files$datapath)
-    }
+    req(input$pdfs)
+    selected_files(input$pdfs$datapath)
   })
   
   output$selected_files <- renderText({
@@ -72,13 +68,14 @@ server <- function(input, output, session) {
     if (is.null(files)) {
       return("No files selected.")
     }
-    paste("Selected files:\n", paste(basename(files), collapse = "\n"))
+    paste("Selected files:\n", paste(basename(input$pdfs$name), collapse = "\n"))
   })
   
   merged_file <- reactiveVal(NULL)
   
   observeEvent(input$merge, {
     files <- selected_files()
+    
     if (!is.null(files) && length(files) > 1) {
       merged_file_path <- tempfile(fileext = ".pdf")
       qpdf::pdf_combine(input = files, output = merged_file_path)
